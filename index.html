@@ -2,40 +2,144 @@
 <html dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>آپلودر Catbox</title>
+    <title>آپلود به Catbox</title>
     <style>
         body {
-            background: #1a1a2e;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
+            font-family: Tahoma, sans-serif;
         }
         
-        .upload-container {
-            width: 650px;
-            height: 450px;
-            overflow: hidden;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            position: relative;
+        .uploader {
+            background: #0f0f23;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
         
-        .upload-container iframe {
-            position: absolute;
-            top: -180px;
-            left: -30px;
-            width: 1200px;
-            height: 900px;
+        h2 {
+            color: #fff;
+            margin-bottom: 30px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-label {
+            background: #6c5ce7;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: inline-block;
+            transition: 0.3s;
+        }
+        
+        .file-label:hover {
+            background: #5b4cdb;
+        }
+        
+        button {
+            background: #00b894;
+            color: white;
             border: none;
-            transform: scale(0.9);
+            padding: 15px 50px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            display: block;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: #00a381;
+        }
+        
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            background: #1e1e3f;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        #result a {
+            color: #74b9ff;
+            word-break: break-all;
+        }
+        
+        #fileName {
+            color: #b2bec3;
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
-    <div class="upload-container">
-        <iframe src="https://catbox.moe/"></iframe>
+    <div class="uploader">
+        <h2>📁 آپلود فایل به Catbox</h2>
+        
+        <label class="file-label">
+            انتخاب فایل
+            <input type="file" id="fileInput" onchange="showName()">
+        </label>
+        
+        <p id="fileName">فایلی انتخاب نشده</p>
+        
+        <button onclick="upload()">آپلود کن 🚀</button>
+        
+        <div id="result">
+            <p style="color: #00b894; margin: 0 0 10px 0;">✅ آپلود شد!</p>
+            <a id="link" href="" target="_blank"></a>
+        </div>
     </div>
+
+    <script>
+        function showName() {
+            const file = document.getElementById('fileInput').files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = '📄 ' + file.name;
+            }
+        }
+        
+        async function upload() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('لطفاً یک فایل انتخاب کن!');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('reqtype', 'fileupload');
+            formData.append('fileToUpload', file);
+            
+            try {
+                document.querySelector('button').textContent = '⏳ در حال آپلود...';
+                
+                const response = await fetch('https://catbox.moe/user/api.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const link = await response.text();
+                
+                document.getElementById('link').href = link;
+                document.getElementById('link').textContent = link;
+                document.getElementById('result').style.display = 'block';
+                document.querySelector('button').textContent = 'آپلود کن 🚀';
+                
+            } catch (error) {
+                alert('خطا در آپلود!');
+                document.querySelector('button').textContent = 'آپلود کن 🚀';
+            }
+        }
+    </script>
 </body>
 </html>
