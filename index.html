@@ -1,53 +1,41 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>آپلود ویدیو به Catbox</title>
-<style>
-body {
-    background: #1d1d1d;
-    color: white;
-    font-family: sans-serif;
-    text-align: center;
-    padding: 50px;
-}
-.box {
-    background: #333;
-    padding: 20px;
-    border-radius: 15px;
-    width: 400px;
-    margin: auto;
-}
-input, button {
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-}
-button {
-    cursor: pointer;
-    background: #ff6b6b;
-    color: white;
-}
-</style>
+    <meta charset="UTF-8">
+    <title>آپلودر Catbox</title>
+    <style>
+        body {
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .upload-container {
+            width: 650px;
+            height: 450px;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        
+        .upload-container iframe {
+            position: absolute;
+            top: -180px;
+            left: -30px;
+            width: 1200px;
+            height: 900px;
+            border: none;
+            transform: scale(0.9);
+        }
+    </style>
 </head>
 <body>
-
-<div class="box">
-    <h2>آپلود فایل به Catbox</h2>
-
-    <!-- فرم واقعی Catbox -->
-    <form action="https://catbox.moe/user/api.php" method="POST" enctype="multipart/form-data" target="resultFrame">
-        <input type="hidden" name="reqtype" value="fileupload">
-        
-        <input type="file" name="fileToUpload" required>
-        <br>
-        <button type="submit">آپلود</button>
-    </form>
-</div>
-
-<h3>لینک خروجی:</h3>
-<iframe name="resultFrame" style="width:90%; height:120px; background:#222; border:none; border-radius:10px; color:white;"></iframe>
-
+    <div class="upload-container">
+        <iframe src="https://catbox.moe/"></iframe>
+    </div>
 </body>
 </html>
