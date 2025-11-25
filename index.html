@@ -2,114 +2,52 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
-<title>آپلود ویدیو مدرن</title>
+<title>آپلود ویدیو به Catbox</title>
 <style>
-    * { box-sizing: border-box; margin:0; padding:0; }
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background: linear-gradient(135deg,#667eea,#764ba2);
-        color: white;
-    }
-    .container {
-        background: rgba(0,0,0,0.7);
-        padding: 30px;
-        border-radius: 20px;
-        text-align: center;
-        width: 400px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    }
-    h1 { margin-bottom: 20px; }
-    input[type="file"] {
-        display: none;
-    }
-    label {
-        background: #ff6b6b;
-        padding: 12px 20px;
-        border-radius: 10px;
-        cursor: pointer;
-        display: inline-block;
-        margin-bottom: 20px;
-        transition: 0.3s;
-    }
-    label:hover {
-        background: #ff8787;
-    }
-    video {
-        max-width: 100%;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        display: none;
-    }
-    button {
-        padding: 12px 20px;
-        border-radius: 10px;
-        border: none;
-        background: #38b000;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
-        transition: 0.3s;
-        display: none;
-    }
-    button:hover {
-        background: #2d9100;
-    }
-    #link {
-        margin-top: 15px;
-        word-break: break-all;
-    }
+body {
+    background: #1d1d1d;
+    color: white;
+    font-family: sans-serif;
+    text-align: center;
+    padding: 50px;
+}
+.box {
+    background: #333;
+    padding: 20px;
+    border-radius: 15px;
+    width: 400px;
+    margin: auto;
+}
+input, button {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+}
+button {
+    cursor: pointer;
+    background: #ff6b6b;
+    color: white;
+}
 </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>آپلود ویدیو</h1>
-    <label for="fileInput">📂 انتخاب فایل ویدیو</label>
-    <input type="file" id="fileInput" accept="video/*">
-    
-    <video id="preview" controls></video>
-    <br>
-    <button id="uploadBtn">🌐 باز کردن سایت برای آپلود</button>
-    <p id="link"></p>
+<div class="box">
+    <h2>آپلود فایل به Catbox</h2>
+
+    <!-- فرم واقعی Catbox -->
+    <form action="https://catbox.moe/user/api.php" method="POST" enctype="multipart/form-data" target="resultFrame">
+        <input type="hidden" name="reqtype" value="fileupload">
+        
+        <input type="file" name="fileToUpload" required>
+        <br>
+        <button type="submit">آپلود</button>
+    </form>
 </div>
 
-<script>
-const fileInput = document.getElementById('fileInput');
-const preview = document.getElementById('preview');
-const uploadBtn = document.getElementById('uploadBtn');
-const linkP = document.getElementById('link');
-
-let selectedFile = null;
-
-fileInput.addEventListener('change', () => {
-    selectedFile = fileInput.files[0];
-    if (!selectedFile) return;
-    
-    // پیش‌نمایش ویدیو
-    const url = URL.createObjectURL(selectedFile);
-    preview.src = url;
-    preview.style.display = 'block';
-    
-    // دکمه آپلود فعال شود
-    uploadBtn.style.display = 'inline-block';
-});
-
-// هنگام کلیک، سایت Catbox یا Pixeldrain باز شود
-uploadBtn.addEventListener('click', () => {
-    if (!selectedFile) return;
-
-    // لینک سایت آپلود (کاربر خودش فایل را در سایت آپلود می‌کند)
-    const uploadSite = "https://catbox.moe/";
-    window.open(uploadSite, '_blank');
-
-    // نمایش راهنمای کپی لینک بعد از آپلود
-    linkP.innerHTML = 'بعد از آپلود، لینک فایل را از سایت کپی کرده و اینجا بچسبانید: <br><input type="text" style="width:100%" placeholder="لینک فایل">';
-});
-</script>
+<h3>لینک خروجی:</h3>
+<iframe name="resultFrame" style="width:90%; height:120px; background:#222; border:none; border-radius:10px; color:white;"></iframe>
 
 </body>
 </html>
