@@ -2,11 +2,11 @@
 <html lang="fa">
 <head>
 <meta charset="UTF-8">
-<title>Upload to Catbox</title>
+<title>آپلود ویدیو روی Pixeldrain</title>
 </head>
 <body style="font-family: sans-serif; direction: rtl;">
 
-<h2>آپلود ویدیو روی Catbox</h2>
+<h2>آپلود ویدیو روی Pixeldrain</h2>
 
 <input type="file" id="fileInput" accept="video/*"><br><br>
 <button onclick="upload()">آپلود</button>
@@ -25,21 +25,23 @@ async function upload() {
     document.getElementById("status").innerText = "در حال آپلود...";
 
     const formData = new FormData();
-    formData.append("reqtype", "fileupload");
-    formData.append("fileToUpload", file);
+    formData.append("file", file);
 
     try {
-        const response = await fetch("https://catbox.moe/user/api.php", {
+        const response = await fetch("https://pixeldrain.com/api/file", {
             method: "POST",
-            body: formData,
+            body: formData
         });
 
-        const result = await response.text();
+        if (!response.ok) throw new Error("خطا در آپلود!");
+
+        const result = await response.json();
+        const link = `https://pixeldrain.com/u/${result.id}`;
 
         document.getElementById("status").innerText = "آپلود کامل شد!";
-        document.getElementById("link").innerHTML =
-            `🔗 لینک فایل: <a href="${result}" target="_blank">${result}</a>`;
+        document.getElementById("link").innerHTML = `🔗 لینک فایل: <a href="${link}" target="_blank">${link}</a>`;
     } catch (e) {
+        console.error(e);
         document.getElementById("status").innerText = "خطا در آپلود!";
     }
 }
