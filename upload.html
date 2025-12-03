@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ارسال تکالیف</title>
+<style>
+body { font-family: Arial; background: #4B0082; color: #fff; margin:0; padding:0;}
+.container { max-width: 500px; margin: 50px auto; background: #5A2E8C; padding: 20px; border-radius: 10px; }
+h1 { text-align:center; color: #FFD700; }
+input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border:none; }
+button { background: #FFD700; color: #4B0082; font-weight: bold; cursor:pointer; }
+button:hover { opacity:0.9; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>ارسال فایل تکلیف</h1>
+  <input type="file" id="files" multiple>
+  <button onclick="uploadFiles()">آپلود</button>
+  <div id="status"></div>
+</div>
+
+<script>
+const CLOUD_NAME = 'dp72ievec';
+const UPLOAD_PRESET = 'my_videos';
+
+// گرفتن اطلاعات دانش‌آموز و تکلیف
+const firstName = localStorage.getItem("firstName");
+const lastName = localStorage.getItem("lastName");
+const taskIndex = localStorage.getItem("currentTask");
+const tasks = [
+  { title: "تمرین 1", answerType: "text", maxFiles: 1 },
+  { title: "تمرین 2", answerType: "video", maxFiles: 2 }
+];
+const currentTask = tasks[taskIndex];
+
+function uploadFiles() {
+  const input = document.getElementById("files");
+  const files = input.files;
+  if(files.length === 0) { alert("فایلی انتخاب نشده"); return; }
+  if(files.length > currentTask.maxFiles) {
+    alert(`حداکثر ${currentTask.maxFiles} فایل می‌توانید ارسال کنید`);
+    return;
+  }
+
+  const status = document.getElementById("status");
+  status.innerHTML = "در حال آپلود ...";
+
+  Array.from(files).forEach(file => {
+    const formData = new FormData();
+    formData.append("file", file);
+    // نام فایل سفارشی: تکلیف/نام/نام خانوادگی
+    formData.append("public_id", `${currentTask.title}_${firstName}_${lastName}_${file.name}`);
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, {
+      method: "POST",
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      status.innerHTML += `<br>آپلود موفق: <a href="${data.secure_url}" target="_blank">${file.name}</a>`;
+    })
+    .catch(err => {
+      status.innerHTML += `<br>خطا در آپلود: ${file.name}`;
+      console.error(err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
