@@ -11,6 +11,7 @@ h1 { text-align:center; color: #FFD700; }
 input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border:none; }
 button { background: #FFD700; color: #4B0082; font-weight: bold; cursor:pointer; }
 button:hover { opacity:0.9; }
+#status a { color: #FFD700; text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -26,15 +27,22 @@ button:hover { opacity:0.9; }
 const CLOUD_NAME = 'dp72ievec';
 const UPLOAD_PRESET = 'my_videos';
 
-// گرفتن اطلاعات دانش‌آموز و تکلیف
-const firstName = localStorage.getItem("firstName");
-const lastName = localStorage.getItem("lastName");
-const taskIndex = localStorage.getItem("currentTask");
+// نمونه تکالیف
 const tasks = [
   { title: "تمرین 1", answerType: "text", maxFiles: 1 },
   { title: "تمرین 2", answerType: "video", maxFiles: 2 }
 ];
+
+// اطلاعات دانش‌آموز و تکلیف جاری
+const firstName = localStorage.getItem("firstName") || "Student";
+const lastName = localStorage.getItem("lastName") || "User";
+const taskIndex = localStorage.getItem("currentTask");
 const currentTask = tasks[taskIndex];
+
+// تابع برای تبدیل فاصله و کاراکترهای فارسی به _
+function slugify(text) {
+  return text.replace(/\s+/g, "_").replace(/[^\w\-]+/g, "");
+}
 
 function uploadFiles() {
   const input = document.getElementById("files");
@@ -51,8 +59,9 @@ function uploadFiles() {
   Array.from(files).forEach(file => {
     const formData = new FormData();
     formData.append("file", file);
-    // نام فایل سفارشی: تکلیف/نام/نام خانوادگی
-    formData.append("public_id", `${currentTask.title}_${firstName}_${lastName}_${file.name}`);
+    // نام فایل به شکل تکلیف_نام_نام خانوادگی_فایل اصلی
+    const fileName = `${slugify(currentTask.title)}_${slugify(firstName)}_${slugify(lastName)}_${slugify(file.name)}`;
+    formData.append("public_id", fileName);
     formData.append("upload_preset", UPLOAD_PRESET);
 
     fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, {
