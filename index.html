@@ -5,111 +5,92 @@
 <title>سایت معلم | مدیریت تکالیف</title>
 
 <style>
-    body {
-        background: #2b0a42;
-        color: white;
-        font-family: sans-serif;
-    }
+    body { background:#2b0a42; color:white; font-family:sans-serif; }
     .container {
-        width: 90%;
-        max-width: 500px;
-        margin: auto;
-        background: #3d0d61;
-        padding: 25px;
-        margin-top: 40px;
-        border-radius: 20px;
-        box-shadow: 0 0 20px #5700a8;
+        width:90%; max-width:500px; margin:auto; background:#3d0d61;
+        padding:25px; margin-top:40px; border-radius:20px;
+        box-shadow:0 0 20px #5700a8;
     }
     input, select, button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 8px;
-        border-radius: 12px;
-        border: none;
+        width:100%; padding:12px; margin-top:8px; border-radius:12px; border:none;
     }
-    button {
-        background: #a700ff;
-        color: white;
-        cursor: pointer;
-        font-size: 16px;
-        margin-top: 15px;
-    }
-    ul {
-        list-style: none;
-        padding: 0;
-    }
-    li {
-        background: #5a138d;
-        padding: 12px;
-        border-radius: 12px;
-        margin-top: 10px;
-    }
+    button { background:#a700ff; color:white; cursor:pointer; font-size:16px; }
 </style>
-</head>
 
+</head>
 <body>
 
 <div class="container">
     <h1>مدیریت تکالیف</h1>
 
     <form id="taskForm">
-        <label>عنوان تکلیف:</label>
-        <input type="text" id="title" required>
-
-        <label>نوع پاسخ:</label>
+        <input type="text" id="title" placeholder="عنوان تکلیف" required>
         <select id="answerType">
             <option value="text">متنی</option>
             <option value="image">عکسی</option>
             <option value="video">ویدیویی</option>
         </select>
-
-        <label>تعداد فایل مجاز:</label>
-        <input type="number" id="maxFiles" min="1" value="1">
-
-        <label>تاریخ انقضا:</label>
+        <input type="number" id="maxFiles" min="1" value="1" placeholder="تعداد فایل">
         <input type="date" id="expireDate" required>
-
-        <button type="submit">ثبت تکلیف</button>
+        <button>ثبت تکلیف</button>
     </form>
 
-    <h2>لیست تکالیف</h2>
-    <ul id="taskList"></ul>
+    <p id="status"></p>
 </div>
 
 <script>
-    const form = document.getElementById("taskForm");
-    const taskList = document.getElementById("taskList");
+const CLOUD_NAME = "dp72ievec";
+const UPLOAD_PRESET = "my_videos";
 
-    function renderTasks() {
-        const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-        taskList.innerHTML = "";
+document.getElementById("taskForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    let status = document.getElementById("status");
 
-        tasks.forEach((t, i) => {
-            const li = document.createElement("li");
-            li.textContent = `${t.title} | نوع: ${t.answerType} | تعداد فایل: ${t.maxFiles} | انقضا: ${t.expireDate}`;
-            taskList.appendChild(li);
-        });
+    // --- 1) گرفتن تکالیف موجود از Cloudinary ---
+    let currentTasks = [];
+
+    try {
+        let res = await fetch(
+            `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/tasks.json`
+        );
+        currentTasks = await res.json();
+    } catch {
+        currentTasks = [];
     }
 
-    form.addEventListener("submit", e => {
-        e.preventDefault();
+    // --- 2) ساخت تکلیف جدید ---
+    const newTask = {
+        title: title.value,
+        answerType: answerType.value,
+        maxFiles: maxFiles.value,
+        expireDate: expireDate.value
+    };
 
-        const task = {
-            title: title.value,
-            answerType: answerType.value,
-            maxFiles: maxFiles.value,
-            expireDate: expireDate.value
-        };
+    currentTasks.push(newTask);
 
-        const tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-        tasks.push(task);
-        localStorage.setItem("tasks", JSON.stringify(tasks));
+    // --- 3) تبدیل کل تکالیف به JSON ---
+    const file = new File(
+        [JSON.stringify(currentTasks)],
+        "tasks.json",
+        { type: "application/json" }
+    );
 
-        renderTasks();
-        form.reset();
+    // --- 4) آپلود JSON روی Cloudinary as RAW ---
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("public_id", "tasks");
+    formData.append("upload_preset", UPLOAD_PRESET);
+    formData.append("resource_type", "raw");
+
+    status.textContent = "درحال ذخیره...";
+
+    await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {
+        method: "POST",
+        body: formData
     });
 
-    renderTasks();
+    status.textContent = "تکلیف با موفقیت ذخیره شد!";
+});
 </script>
 
 </body>
