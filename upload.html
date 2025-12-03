@@ -27,19 +27,17 @@ button:hover { opacity:0.9; }
 const CLOUD_NAME = 'dp72ievec';
 const UPLOAD_PRESET = 'my_videos';
 
-// نمونه تکالیف
 const tasks = [
   { title: "تمرین 1", answerType: "text", maxFiles: 1 },
   { title: "تمرین 2", answerType: "video", maxFiles: 2 }
 ];
 
-// اطلاعات دانش‌آموز و تکلیف جاری
 const firstName = localStorage.getItem("firstName") || "Student";
 const lastName = localStorage.getItem("lastName") || "User";
 const taskIndex = localStorage.getItem("currentTask");
 const currentTask = tasks[taskIndex];
 
-// تابع برای تبدیل فاصله و کاراکترهای فارسی به _
+// تبدیل فاصله و کاراکترهای فارسی
 function slugify(text) {
   return text.replace(/\s+/g, "_").replace(/[^\w\-]+/g, "");
 }
@@ -57,25 +55,29 @@ function uploadFiles() {
   status.innerHTML = "در حال آپلود ...";
 
   Array.from(files).forEach(file => {
-    const formData = new FormData();
-    formData.append("file", file);
-    // نام فایل به شکل تکلیف_نام_نام خانوادگی_فایل اصلی
-    const fileName = `${slugify(currentTask.title)}_${slugify(firstName)}_${slugify(lastName)}_${slugify(file.name)}`;
-    formData.append("public_id", fileName);
-    formData.append("upload_preset", UPLOAD_PRESET);
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const blob = new Blob([event.target.result], { type: file.type });
+      const fileName = `${slugify(currentTask.title)}_${slugify(firstName)}_${slugify(lastName)}_${slugify(file.name)}`;
+      
+      const formData = new FormData();
+      formData.append("file", blob, fileName); // نام دلخواه اینجا اعمال می‌شود
+      formData.append("upload_preset", UPLOAD_PRESET);
 
-    fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, {
-      method: "POST",
-      body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-      status.innerHTML += `<br>آپلود موفق: <a href="${data.secure_url}" target="_blank">${file.name}</a>`;
-    })
-    .catch(err => {
-      status.innerHTML += `<br>خطا در آپلود: ${file.name}`;
-      console.error(err);
-    });
+      fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, {
+        method: "POST",
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        status.innerHTML += `<br>آپلود موفق: <a href="${data.secure_url}" target="_blank">${file.name}</a>`;
+      })
+      .catch(err => {
+        status.innerHTML += `<br>خطا در آپلود: ${file.name}`;
+        console.error(err);
+      });
+    }
+    reader.readAsArrayBuffer(file);
   });
 }
 </script>
