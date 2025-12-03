@@ -1,96 +1,75 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa">
 <head>
-<meta charset="UTF-8" />
-<title>سایت معلم | مدیریت تکالیف</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کلاس ریاضی</title>
 <style>
-    body { background:#2b0a42; color:white; font-family:sans-serif; }
-    .container {
-        width:90%; max-width:500px; margin:auto; background:#3d0d61;
-        padding:25px; margin-top:40px; border-radius:20px;
-        box-shadow:0 0 20px #5700a8;
-    }
-    input, select, button {
-        width:100%; padding:12px; margin-top:8px; border-radius:12px; border:none;
-    }
-    button { background:#a700ff; color:white; cursor:pointer; font-size:16px; }
+body { font-family: Arial; background: #4B0082; color: #fff; margin:0; padding:0;}
+.container { max-width: 500px; margin: 50px auto; background: #5A2E8C; padding: 20px; border-radius: 10px; }
+h1 { text-align:center; color: #FFD700; }
+input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border:none; }
+button { background: #FFD700; color: #4B0082; font-weight: bold; cursor:pointer; }
+button:hover { opacity:0.9; }
+.task { background: #7B3F99; padding: 10px; margin: 10px 0; border-radius:5px; }
+.task button { width: auto; padding:5px 10px; margin-top:5px; }
 </style>
-
 </head>
 <body>
 
-<div class="container">
-    <h1>مدیریت تکالیف</h1>
+<div class="container" id="register-container">
+  <h1>ثبت نام دانش‌آموز</h1>
+  <input type="text" id="firstName" placeholder="نام">
+  <input type="text" id="lastName" placeholder="نام خانوادگی">
+  <button onclick="register()">ثبت نام</button>
+</div>
 
-    <form id="taskForm">
-        <input type="text" id="title" placeholder="عنوان تکلیف" required>
-        <select id="answerType">
-            <option value="text">متنی</option>
-            <option value="image">عکسی</option>
-            <option value="video">ویدیویی</option>
-        </select>
-        <input type="number" id="maxFiles" min="1" value="1" placeholder="تعداد فایل">
-        <input type="date" id="expireDate" required>
-        <button>ثبت تکلیف</button>
-    </form>
-
-    <p id="status"></p>
+<div class="container" id="tasks-container" style="display:none;">
+  <h1>تکالیف</h1>
+  <div id="tasks-list"></div>
 </div>
 
 <script>
-const CLOUD_NAME = "dp72ievec";
-const UPLOAD_PRESET = "my_videos";
+// نمونه تکالیف
+const tasks = [
+  { title: "تمرین 1", answerType: "text", maxFiles: 1 },
+  { title: "تمرین 2", answerType: "video", maxFiles: 2 }
+];
 
-document.getElementById("taskForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    let status = document.getElementById("status");
+function register() {
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  if (!firstName || !lastName) { alert("نام و نام خانوادگی را وارد کنید"); return; }
+  localStorage.setItem("firstName", firstName);
+  localStorage.setItem("lastName", lastName);
+  showTasks();
+}
 
-    // --- 1) گرفتن تکالیف موجود از Cloudinary ---
-    let currentTasks = [];
+function showTasks() {
+  document.getElementById("register-container").style.display = "none";
+  document.getElementById("tasks-container").style.display = "block";
+  const tasksList = document.getElementById("tasks-list");
+  tasksList.innerHTML = "";
+  tasks.forEach((task, idx) => {
+    const div = document.createElement("div");
+    div.className = "task";
+    div.innerHTML = `<strong>${task.title}</strong> <br> نوع پاسخ: ${task.answerType} <br>
+                     <button onclick="goUpload(${idx})">ارسال</button>`;
+    tasksList.appendChild(div);
+  });
+}
 
-    try {
-        let res = await fetch(
-            `https://res.cloudinary.com/${CLOUD_NAME}/raw/upload/v1/tasks.json`
-        );
-        currentTasks = await res.json();
-    } catch {
-        currentTasks = [];
-    }
+function goUpload(taskIndex) {
+  localStorage.setItem("currentTask", taskIndex);
+  window.location.href = "upload.html";
+}
 
-    // --- 2) ساخت تکلیف جدید ---
-    const newTask = {
-        title: title.value,
-        answerType: answerType.value,
-        maxFiles: maxFiles.value,
-        expireDate: expireDate.value
-    };
-
-    currentTasks.push(newTask);
-
-    // --- 3) تبدیل کل تکالیف به JSON ---
-    const file = new File(
-        [JSON.stringify(currentTasks)],
-        "tasks.json",
-        { type: "application/json" }
-    );
-
-    // --- 4) آپلود JSON روی Cloudinary as RAW ---
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("public_id", "tasks");
-    formData.append("upload_preset", UPLOAD_PRESET);
-    formData.append("resource_type", "raw");
-
-    status.textContent = "درحال ذخیره...";
-
-    await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {
-        method: "POST",
-        body: formData
-    });
-
-    status.textContent = "تکلیف با موفقیت ذخیره شد!";
-});
+// اگر دانش‌آموز قبلا ثبت نام کرده باشد
+window.onload = function() {
+  if(localStorage.getItem("firstName") && localStorage.getItem("lastName")) {
+    showTasks();
+  }
+}
 </script>
 
 </body>
