@@ -1,181 +1,238 @@
-<!DOCTYPE html>
-<html dir="rtl" lang="fa">
+<!doctype html>
+<html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>آپلود ویدیو</title>
-    <style>
-        * { box-sizing: border-box; font-family: Tahoma, sans-serif; }
-        body { 
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            min-height: 100vh; display: flex; 
-            align-items: center; justify-content: center;
-            margin: 0; padding: 20px;
-        }
-        .container {
-            background: white; padding: 40px; border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center; max-width: 500px; width: 100%;
-        }
-        h1 { color: #1a1a2e; margin-bottom: 30px; }
-        .upload-area {
-            border: 3px dashed #4a90a4; border-radius: 15px;
-            padding: 40px; cursor: pointer; transition: 0.3s;
-            background: #f8f9fa;
-        }
-        .upload-area:hover { background: #e3f2fd; border-color: #2196f3; }
-        .upload-area.dragover { background: #bbdefb; }
-        input[type="file"] { display: none; }
-        .btn {
-            background: linear-gradient(135deg, #4a90a4, #2196f3);
-            color: white; border: none; padding: 15px 40px;
-            border-radius: 30px; font-size: 18px; cursor: pointer;
-            margin-top: 20px; transition: 0.3s;
-        }
-        .btn:hover { transform: scale(1.05); }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
-        .progress {
-            width: 100%; height: 20px; background: #e0e0e0;
-            border-radius: 10px; margin-top: 20px; overflow: hidden;
-            display: none;
-        }
-        .progress-bar {
-            height: 100%; background: linear-gradient(90deg, #4a90a4, #2196f3);
-            width: 0%; transition: width 0.3s;
-        }
-        .result {
-            margin-top: 20px; padding: 20px; background: #e8f5e9;
-            border-radius: 10px; display: none;
-        }
-        .result input {
-            width: 100%; padding: 10px; border: 2px solid #4caf50;
-            border-radius: 8px; font-size: 14px; margin: 10px 0;
-        }
-        .copy-btn {
-            background: #4caf50; color: white; border: none;
-            padding: 10px 25px; border-radius: 20px; cursor: pointer;
-        }
-        .file-name { color: #666; margin-top: 10px; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>پنل سرگروه — ایجاد تکلیف</title>
+  <style>
+    :root{
+      --bg:#0f0520;--card:#1a0b2b;--accent1:#7b2cbf;--accent2:#b388ff;
+      --text:#f5f5ff;--muted:#cfc8e9;--glass: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box;font-family: "IRANSans", "Vazir", system-ui, -apple-system, "Segoe UI", Roboto, Arial;}
+    html,body{height:100%;margin:0;background: linear-gradient(180deg,#0b0317,#140724); color:var(--text);}
+    .container{max-width:1100px;margin:28px auto;padding:18px;}
+    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+    .brand{display:flex;gap:12px;align-items:center;}
+    .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent1),var(--accent2));display:flex;align-items:center;justify-content:center;font-weight:800;color:white;box-shadow:0 10px 30px rgba(123,44,191,0.18);}
+    .h1{font-size:20px;font-weight:700;}
+    .grid{display:grid;grid-template-columns:1fr 380px;gap:18px;}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.015)); padding:16px;border-radius:14px;box-shadow: 0 6px 30px rgba(11,3,23,0.6);border:1px solid rgba(255,255,255,0.03);}
+    .form-row{margin-bottom:12px;display:flex;flex-direction:column;gap:6px;}
+    label{font-size:13px;color:var(--muted);}
+    input[type="text"], input[type="number"], input[type="date"], select, textarea{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:10px;border-radius:8px;color:var(--text);outline:none;}
+    textarea{min-height:86px;resize:vertical;}
+    .btn{background:linear-gradient(90deg,var(--accent1),var(--accent2));padding:10px 14px;border-radius:10px;border:none;color:white;font-weight:600;cursor:pointer;box-shadow:0 8px 24px rgba(123,44,191,0.18);}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);}
+    .small{font-size:13px;padding:8px 10px;border-radius:8px;}
+    .assignment-list{display:flex;flex-direction:column;gap:10px;margin-top:8px;max-height:520px;overflow:auto;padding-right:6px;}
+    .assignment-item{display:flex;justify-content:space-between;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.02);}
+    .meta{font-size:13px;color:var(--muted);}
+    .badge{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;font-weight:600;}
+    .footer-note{font-size:13px;color:var(--muted);margin-top:10px;}
+    .row{display:flex;gap:8px;align-items:center;}
+    .muted{color:var(--muted);font-size:13px;}
+    @media (max-width:920px){.grid{grid-template-columns:1fr;}.container{padding:12px;margin:12px;}}
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📹 آپلود ویدیو</h1>
-        
-        <div class="upload-area" id="dropArea">
-            <p>🎬 فایل ویدیو را اینجا بکشید</p>
-            <p>یا کلیک کنید</p>
-            <input type="file" id="fileInput" accept="video/*">
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <div class="logo">ری</div>
+        <div>
+          <div class="h1">پنل سرگروه — کلاس ریاضی</div>
+          <div style="font-size:13px;color:var(--muted)">ایجاد و مدیریت تکالیف</div>
         </div>
-        
-        <p class="file-name" id="fileName"></p>
-        
-        <button class="btn" id="uploadBtn" disabled>آپلود ویدیو</button>
-        
-        <div class="progress" id="progress">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
-        <p id="progressText"></p>
-        
-        <div class="result" id="result">
-            <p>✅ آپلود موفق!</p>
-            <input type="text" id="linkInput" readonly>
-            <button class="copy-btn" onclick="copyLink()">کپی لینک</button>
-        </div>
+      </div>
+      <div class="row">
+        <a href="student.html" class="btn small" id="openStudent">صفحهٔ دانش‌آموز</a>
+      </div>
     </div>
 
-    <script>
-        // ⚠️ این مقادیر را از Cloudinary بگیر
-        const CLOUD_NAME = 'dp72ievec';
-        const UPLOAD_PRESET = 'my_videos';
-        
-        const dropArea = document.getElementById('dropArea');
-        const fileInput = document.getElementById('fileInput');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const progress = document.getElementById('progress');
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
-        const result = document.getElementById('result');
-        const linkInput = document.getElementById('linkInput');
-        const fileName = document.getElementById('fileName');
-        
-        let selectedFile = null;
-        
-        // کلیک روی محیط آپلود
-        dropArea.addEventListener('click', () => fileInput.click());
-        
-        // Drag & Drop
-        dropArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropArea.classList.add('dragover');
-        });
-        
-        dropArea.addEventListener('dragleave', () => {
-            dropArea.classList.remove('dragover');
-        });
-        
-        dropArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropArea.classList.remove('dragover');
-            handleFile(e.dataTransfer.files[0]);
-        });
-        
-        fileInput.addEventListener('change', (e) => {
-            handleFile(e.target.files[0]);
-        });
-        
-        function handleFile(file) {
-            if (file && file.type.startsWith('video/')) {
-                selectedFile = file;
-                fileName.textContent = `📁 ${file.name}`;
-                uploadBtn.disabled = false;
-            } else {
-                alert('لطفاً فقط فایل ویدیو انتخاب کنید');
-            }
-        }
-        
-        uploadBtn.addEventListener('click', uploadVideo);
-        
-        function uploadVideo() {
-            if (!selectedFile) return;
-            
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-            formData.append('upload_preset', UPLOAD_PRESET);
-            
-            const xhr = new XMLHttpRequest();
-            
-            xhr.upload.addEventListener('progress', (e) => {
-                if (e.lengthComputable) {
-                    const percent = Math.round((e.loaded / e.total) * 100);
-                    progressBar.style.width = percent + '%';
-                    progressText.textContent = `${percent}% آپلود شد...`;
-                }
+    <div class="grid">
+      <div class="card">
+        <h3>ایجاد تکلیف جدید</h3>
+        <div class="form-row">
+          <label>عنوان تکلیف</label>
+          <input id="title" type="text" placeholder="مثال: فصل ۳ — تمرینات" />
+        </div>
+        <div class="form-row">
+          <label>توضیحات (اختیاری)</label>
+          <textarea id="description" placeholder="توضیح کوتاه دربارهٔ تکلیف"></textarea>
+        </div>
+        <div class="form-row">
+          <label>نوع پاسخ</label>
+          <select id="responseType">
+            <option value="text">متنی</option>
+            <option value="image">عکس</option>
+            <option value="video">ویدیو</option>
+            <option value="any">هر نوع فایل</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>تعداد فایل مجاز (اگر غیر از متنی)</label>
+          <input id="numFiles" type="number" min="0" value="1" />
+        </div>
+        <div class="form-row">
+          <label>تاریخ انقضا</label>
+          <input id="dueDate" type="date" />
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button id="createBtn" class="btn">ایجاد تکلیف</button>
+          <button id="clearBtn" class="btn ghost">پاک کردن فرم</button>
+        </div>
+
+        <div class="footer-note">
+          تکالیف ایجاد شده در Firestore ذخیره می‌شوند و دانش‌آموزان در صفحهٔ مخصوص خود می‌توانند ارسال کنند.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>تکالیف فعلی</h3>
+        <div id="assignments" class="assignment-list"><div class="muted">در حال بارگذاری…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    /***** تنظیمات Cloudinary (از شما) *****/
+    const CLOUD_NAME = 'dp72ievec';
+    const UPLOAD_PRESET = 'my_videos';
+
+    /***** تنظیمات Firebase — حتماً مقادیر را جایگزین کنید *****/
+    // از Firebase Console → Project settings → Your apps
+    const FIREBASE_CONFIG = {
+      apiKey: "REPLACE_WITH_YOUR_API_KEY",
+      authDomain: "REPLACE_WITH_AUTH_DOMAIN",
+      projectId: "REPLACE_WITH_PROJECT_ID",
+      storageBucket: "REPLACE_WITH_STORAGE_BUCKET",
+      messagingSenderId: "REPLACE_WITH_SENDER_ID",
+      appId: "REPLACE_WITH_APP_ID"
+    };
+
+    // === init firebase ===
+    firebase.initializeApp(FIREBASE_CONFIG);
+    const db = firebase.firestore();
+
+    // === المان‌ها ===
+    const titleEl = document.getElementById('title');
+    const descEl = document.getElementById('description');
+    const respEl = document.getElementById('responseType');
+    const numFilesEl = document.getElementById('numFiles');
+    const dueDateEl = document.getElementById('dueDate');
+    const createBtn = document.getElementById('createBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const assignmentsEl = document.getElementById('assignments');
+
+    // === افکت‌ها و عملکردها ===
+    createBtn.addEventListener('click', async () => {
+      const title = titleEl.value.trim();
+      if(!title){ alert('عنوان تکلیف را وارد کنید.'); return; }
+      const data = {
+        title,
+        description: descEl.value.trim(),
+        responseType: respEl.value,
+        numFiles: Number(numFilesEl.value) || 0,
+        dueDate: dueDateEl.value ? new Date(dueDateEl.value).toISOString() : null,
+        createdAt: new Date().toISOString()
+      };
+      try{
+        await db.collection('assignments').add(data);
+        alert('تکلیف با موفقیت ایجاد شد.');
+        titleEl.value=''; descEl.value=''; numFilesEl.value='1'; dueDateEl.value='';
+      }catch(err){
+        console.error(err); alert('خطا در ذخیره‌سازی تکلیف.');
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      titleEl.value=''; descEl.value=''; numFilesEl.value='1'; dueDateEl.value=''; respEl.value='text';
+    });
+
+    // بارگذاری لیست تکالیف
+    function renderAssignments(docs){
+      assignmentsEl.innerHTML='';
+      if(docs.length===0){
+        assignmentsEl.innerHTML = '<div class="muted">هیچ تکلیفی وجود ندارد.</div>'; return;
+      }
+      docs.forEach(doc => {
+        const d = doc.data();
+        const el = document.createElement('div');
+        el.className='assignment-item';
+        const left = document.createElement('div');
+        left.innerHTML = `<div style="font-weight:700">${escapeHtml(d.title)}</div>
+                          <div class="meta">${d.description?escapeHtml(d.description):''}</div>`;
+        const right = document.createElement('div');
+        const due = d.dueDate ? new Date(d.dueDate).toLocaleDateString('fa-IR') : 'بدون انقضا';
+        right.innerHTML = `<div style="text-align:center"><div class="badge">${escapeHtml(d.responseType)}</div>
+                           <div class="meta" style="margin-top:6px">${due}</div>
+                           <div style="margin-top:8px" class="row">
+                             <button class="btn small" onclick="openSubmissions('${doc.id}')">مشاهده ارسال‌ها</button>
+                             <button class="btn ghost small" onclick="deleteAssignment('${doc.id}')">حذف</button>
+                           </div></div>`;
+        el.appendChild(left); el.appendChild(right);
+        assignmentsEl.appendChild(el);
+      });
+    }
+
+    // مانیتور realtime
+    db.collection('assignments').orderBy('createdAt','desc').onSnapshot(snap => {
+      renderAssignments(snap.docs);
+    });
+
+    // حذف تکلیف
+    async function deleteAssignment(id){
+      if(!confirm('آیا از حذف تکلیف مطمئن هستید؟')) return;
+      try{ await db.collection('assignments').doc(id).delete(); alert('حذف شد'); }
+      catch(e){ console.error(e); alert('خطا در حذف'); }
+    }
+    window.deleteAssignment = deleteAssignment;
+
+    // باز کردن صفحه‌ای برای دیدن ارسال‌ها (ساده: پنجره جدید با لیست)
+    function openSubmissions(assignmentId){
+      const w = window.open('','_blank');
+      w.document.title = 'ارسال‌ها';
+      const content = `
+        <style>
+          body{font-family:Arial;padding:18px;background:#07020a;color:#fff}
+          .card{background:#0f0620;padding:12px;border-radius:8px}
+          .item{padding:8px;border-bottom:1px solid rgba(255,255,255,0.04)}
+        </style>
+        <h3>ارسال‌ها</h3><div id="list" class="card">در حال بارگذاری...</div>
+        <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore-compat.js"></script>
+        <script>
+          const FIREBASE_CONFIG = ${JSON.stringify(FIREBASE_CONFIG)};
+          firebase.initializeApp(FIREBASE_CONFIG);
+          const db = firebase.firestore();
+          const list = document.getElementById('list');
+          db.collection('submissions').where('assignmentId','==','${assignmentId}').orderBy('createdAt','desc')
+            .onSnapshot(snap => {
+              list.innerHTML='';
+              if(snap.docs.length===0){ list.innerHTML='<div>هنوز ارسالی وجود ندارد.</div>'; return; }
+              snap.docs.forEach(d => {
+                const data = d.data();
+                const files = (data.files||[]).map(f => '<div><a href="'+f.url+'" target="_blank">'+f.name+'</a></div>').join('');
+                const date = new Date(data.createdAt).toLocaleString();
+                const html = '<div class="item"><strong>'+escapeHtml(data.studentName || '')+'</strong><div style="color:#cfc8e9;font-size:13px">'+date+'</div>'+files+'</div>';
+                list.insertAdjacentHTML('beforeend', html);
+              });
             });
-            
-            xhr.addEventListener('load', () => {
-                if (xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    linkInput.value = response.secure_url;
-                    result.style.display = 'block';
-                    progressText.textContent = '✅ تمام شد!';
-                } else {
-                    alert('خطا در آپلود');
-                }ب
-            });
-            
-            xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`);
-            
-            progress.style.display = 'block';
-            uploadBtn.disabled = true;
-            xhr.send(formData);
-        }
-        
-        function copyLink() {
-            linkInput.select();
-            document.execCommand('copy');
-            alert('لینک کپی شد!');
-        }
-    </script>
+          function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m];}); }
+        <\/script>
+      `;
+      w.document.body.innerHTML = content;
+    }
+    window.openSubmissions = openSubmissions;
+
+    // utility
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m];}); }
+    function sanitize(s){ return s; }
+  </script>
 </body>
-</html>ب
+</html>
